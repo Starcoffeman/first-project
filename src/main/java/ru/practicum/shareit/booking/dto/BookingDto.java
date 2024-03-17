@@ -1,36 +1,36 @@
 package ru.practicum.shareit.booking.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.intf.Create;
 
+import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
-
+@AllArgsConstructor
+@NoArgsConstructor
 public class BookingDto {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private long id;
 
-    private Timestamp start;
+    private LocalDateTime start;
 
-    @NotNull(groups = Create.class, message = " Время не может быть пустым")
-    private Timestamp finish;
+    private LocalDateTime end;
 
-    @NotNull(groups =  Create.class,message = "Предмет не может быть пустым")
-    private Long item;
+    private long itemId;
 
-    @NotNull(groups =  Create.class,message = "Бронирующий не может быть пустым")
-    private Long booker;
+    private long booker;
 
-    @NotNull(groups =  Create.class,message = "Статус не может быть пустым")
     private BookingStatus status;
 }

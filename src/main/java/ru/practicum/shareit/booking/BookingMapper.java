@@ -4,6 +4,7 @@ import org.mapstruct.Mapper;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 
@@ -18,13 +19,16 @@ public class BookingMapper {
         if (booking == null) {
             return null;
         }
-        return BookingDto.builder()
-                .start(booking.getStart())
-                .finish(booking.getFinish())
-                .item(booking.getItem())
-                .booker(booking.getBooker())
-                .status(booking.getStatus())
-                .build();
+
+        BookingDto bookingDto = new BookingDto();
+        bookingDto.setId(booking.getId());
+        bookingDto.setStart(booking.getStart());
+        bookingDto.setEnd(booking.getEnd());
+        bookingDto.setItemId(booking.getItem());
+        bookingDto.setBooker(booking.getBooker());
+        bookingDto.setStatus(booking.getStatus());
+
+        return bookingDto;
     }
 
     public static List<BookingDto> mapToBookingDto(Iterable<Booking> bookings) {
@@ -37,13 +41,4 @@ public class BookingMapper {
         return result;
     }
 
-    public static Booking mapToNewBooking(BookingDto bookingDto) {
-        Booking booking = new Booking();
-        booking.setStart(bookingDto.getStart());
-        booking.setFinish(bookingDto.getFinish());
-        booking.setItem(bookingDto.getItem());
-        booking.setBooker(booking.getBooker());
-        booking.setStatus(booking.getStatus());
-        return booking;
-    }
 }

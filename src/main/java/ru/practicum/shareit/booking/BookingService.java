@@ -15,7 +15,7 @@ public interface BookingService {
 
     BookingDto getBookingById(long bookingId);
 
-    BookingDto createBooking(BookingDto bookingDto);
+    Booking createBooking(long userId,BookingDto bookingDto);
 
     BookingDto updateBooking(long bookingId, BookingDto bookingDto);
 

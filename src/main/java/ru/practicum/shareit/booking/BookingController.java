@@ -19,33 +19,35 @@ import java.util.List;
 public class BookingController {
 
     private final BookingService bookingService;
+    private static final String USER_ID = "X-Sharer-User-Id";
+
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public BookingDto saveNewBooking(@RequestBody @Validated(Create.class) BookingDto bookingDto) {
-        return bookingService.createBooking(bookingDto);
+    public Booking saveNewBooking(@RequestHeader(USER_ID) long userId,@RequestBody @Validated(Create.class) BookingDto bookingDto) {
+        return bookingService.createBooking(userId,bookingDto);
     }
-
-    @GetMapping("/{bookingId}")
-    public BookingDto getBookingById(@PathVariable long bookingId) {
-        return bookingService.getBookingById(bookingId);
-    }
-
-    @PutMapping("/{bookingId}")
-    public BookingDto updateBooking(@PathVariable long bookingId, @RequestBody @Validated BookingDto bookingDto) {
-        return bookingService.updateBooking(bookingId, bookingDto);
-    }
-
-    @DeleteMapping("/{bookingId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteBookingById(@PathVariable long bookingId) {
-        bookingService.deleteBookingById(bookingId);
-    }
-
-    @GetMapping
-    public List<BookingDto> getAllBookings() {
-        return bookingService.getAllBookings();
-    }
+//
+//    @GetMapping("/{bookingId}")
+//    public BookingDto getBookingById(@PathVariable long bookingId) {
+//        return bookingService.getBookingById(bookingId);
+//    }
+//
+//    @PutMapping("/{bookingId}")
+//    public BookingDto updateBooking(@PathVariable long bookingId, @RequestBody @Validated BookingDto bookingDto) {
+//        return bookingService.updateBooking(bookingId, bookingDto);
+//    }
+//
+//    @DeleteMapping("/{bookingId}")
+//    @ResponseStatus(HttpStatus.NO_CONTENT)
+//    public void deleteBookingById(@PathVariable long bookingId) {
+//        bookingService.deleteBookingById(bookingId);
+//    }
+//
+//    @GetMapping
+//    public List<BookingDto> getAllBookings() {
+//        return bookingService.getAllBookings();
+//    }
 }
 
 
