@@ -36,31 +36,10 @@ public class BookingController {
     }
 
     @GetMapping("/{bookingId}")
-    public Booking getBookingByIdAndBooker(@PathVariable long bookingId, @RequestHeader(USER_ID) long bookerId) {
-        return bookingService.getBookingByIdAndBooker(bookingId, bookerId);
+    public Booking getBookingByIdAndBooker(@PathVariable long bookingId, @RequestHeader(USER_ID) long userId) {
+        return bookingService.getBookingByIdAndBookerOrOwner(bookingId,userId);
     }
 
-//
-//    @GetMapping("/{bookingId}")
-//    public BookingDto getBookingById(@PathVariable long bookingId) {
-//        return bookingService.getBookingById(bookingId);
-//    }
-//
-//    @PutMapping("/{bookingId}")
-//    public BookingDto updateBooking(@PathVariable long bookingId, @RequestBody @Validated BookingDto bookingDto) {
-//        return bookingService.updateBooking(bookingId, bookingDto);
-//    }
-//
-//    @DeleteMapping("/{bookingId}")
-//    @ResponseStatus(HttpStatus.NO_CONTENT)
-//    public void deleteBookingById(@PathVariable long bookingId) {
-//        bookingService.deleteBookingById(bookingId);
-//    }
-//
-//    @GetMapping
-//    public List<BookingDto> getAllBookings() {
-//        return bookingService.getAllBookings();
-//    }
 }
 
 

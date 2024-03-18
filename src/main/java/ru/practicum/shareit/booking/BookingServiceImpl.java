@@ -10,11 +10,7 @@ import ru.practicum.shareit.exceptions.ResourceNotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.user.UserRepository;
-import ru.practicum.shareit.user.model.User;
 
-import javax.persistence.EntityNotFoundException;
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -26,11 +22,6 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository repository;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
-
-//    @Override
-//    public List<Booking> findBookingById() {
-//
-//    }
 
     @Override
     @Transactional
@@ -105,58 +96,30 @@ public class BookingServiceImpl implements BookingService {
 
 
     @Override
-    @Transactional(readOnly = true)
-    public Booking getBookingByIdAndBooker(long bookingId, long bookerId) {
-        Booking booking = repository.findByIdAndBookerId(bookingId, bookerId);
-        return booking;
+    @Transactional
+    public Booking getBookingByIdAndBookerOrOwner( long bookingId, long userId) {
+        // Попытка найти бронирование по bookingId
+        Booking booking = getBookingById(bookingId);
+
+        // Проверка, является ли пользователь владельцем предмета, связанного с бронированием
+        if (booking.getItem().getOwner() == userId) {
+            return booking;
+        }
+
+        // Если пользователь не является владельцем предмета, осуществить поиск по booker.id
+        if (booking.getBooker().getId() == userId) {
+            return booking;
+        }
+
+        // Если бронирование не найдено или пользователь не связан с ним, вернуть ошибку
+        throw new ResourceNotFoundException("Booking not found for user with ID: " + userId);
     }
-//    @Override
-//    public List<BookingDto> getAllBookings() {
-//        List<Booking> bookings = repository.findAllBookingsWithDetails();
-//        return BookingMapper.mapToBookingDto(bookings);
-//    }
 
-//    @Override
-//    public Booking getBookingById(long bookingId) {
-//        Booking booking = repository.findById(bookingId)
-//                .orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
-//
-//        return booking;
-//    }
+    @Override
+    public Booking getBookingById(long bookingId) {
+        return repository.findById(bookingId)
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
+    }
 
-//    @Override
-//    @Transactional
-//    public BookingDto updateBooking(long bookingId, BookingDto bookingDto) {
-//        Booking booking = repository.findById(bookingId)
-//                .orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
-//
-//
-//        if (bookingDto.getStart() != null) {
-//            booking.setStart(bookingDto.getStart());
-//        }
-//
-//        if (bookingDto.getEnd() != null) {
-//            booking.setEnd(bookingDto.getEnd());
-//        }
-//
-//        booking = repository.save(booking); // Save the updated item
-//
-//
-//        return BookingMapper.mapToBookingDto(booking);
-//    }
-//
-//    @Override
-//    @Transactional
-//    public void deleteBookingById(long bookingId) {
-//        if (bookingId < 1) {
-//            throw new IllegalArgumentException("Booking ID must be greater than 0");
-//        }
-//        repository.deleteById(bookingId);
-//    }
 
-//    @Override
-//    public List<BookingDto> getAllBookings() {
-//        List<Booking> bookings = repository.findAll();
-//        return BookingMapper.mapToBookingDto(bookings);
-//    }
 }

@@ -10,9 +10,6 @@ import java.util.List;
 
 public interface BookingRepository  extends JpaRepository<Booking, Long> {
 
-    @Query("SELECT b FROM Booking b JOIN FETCH b.item JOIN FETCH b.booker")
-    List<Booking> findBookingById();
 
-    Booking findByIdAndBookerId(long bookingId, long bookerId);
 
 }
