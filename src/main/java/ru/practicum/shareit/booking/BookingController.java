@@ -27,6 +27,19 @@ public class BookingController {
     public Booking saveNewBooking(@RequestHeader(USER_ID) long userId,@RequestBody @Validated(Create.class) BookingDto bookingDto) {
         return bookingService.createBooking(userId,bookingDto);
     }
+
+    @PatchMapping("/{bookingId}")
+    public Booking updateBookingStatus(@RequestHeader(USER_ID) long userId,
+                                       @PathVariable long bookingId,
+                                       @RequestParam("approved") boolean approved) {
+        return bookingService.setBookingApproval(userId, bookingId, approved);
+    }
+
+    @GetMapping("/{bookingId}")
+    public Booking getBookingByIdAndBooker(@PathVariable long bookingId, @RequestHeader(USER_ID) long bookerId) {
+        return bookingService.getBookingByIdAndBooker(bookingId, bookerId);
+    }
+
 //
 //    @GetMapping("/{bookingId}")
 //    public BookingDto getBookingById(@PathVariable long bookingId) {

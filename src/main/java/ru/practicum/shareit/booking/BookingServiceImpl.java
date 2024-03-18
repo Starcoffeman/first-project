@@ -10,6 +10,7 @@ import ru.practicum.shareit.exceptions.ResourceNotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.EntityNotFoundException;
 import java.sql.Timestamp;
@@ -25,7 +26,30 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository repository;
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
-    private final Timestamp ts = Timestamp.from(Instant.now());
+
+//    @Override
+//    public List<Booking> findBookingById() {
+//
+//    }
+
+    @Override
+    @Transactional
+    public Booking setBookingApproval(long userId,long bookingId, boolean approved) {
+        // Находим бронирование по его ID
+        Booking booking = repository.getReferenceById(bookingId);
+//        if(booking.getBooker().getId()!=userId){
+//            throw new ResourceNotFoundException("dsada");
+//        }
+        // Устанавливаем подтверждение владельцем
+        if (approved) {
+            booking.setStatus(BookingStatus.APPROVED);
+
+        } else {
+            booking.setStatus(BookingStatus.CANCELED);
+        }
+        // Сохраняем обновленное бронирование в базе данных
+        return repository.save(booking);
+    }
 
     @Override
     @Transactional
@@ -50,7 +74,6 @@ public class BookingServiceImpl implements BookingService {
         if (itemRepository.getById(bookingDto.getItemId()).getAvailable() == false) {
             throw new ValidationException("adsad");
         }
-        // Проверка на то, что время начала бронирования не может быть в прошлом
 
         if (bookingDto.getStart().isBefore(LocalDateTime.now())) {
             throw new ValidationException("Booking start time cannot be in the past");
@@ -70,60 +93,70 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = new Booking();
         booking.setStart(bookingDto.getStart());
         booking.setEnd(bookingDto.getEnd());
-        booking.setItem(bookingDto.getItemId());
-        booking.setBooker(userId);
+        booking.setBooker(userRepository.getReferenceById(userId));
+        booking.setItem(itemRepository.getReferenceById(bookingDto.getItemId()));
         booking.setStatus(BookingStatus.WAITING);
 
         // Save the new booking to the database
-        booking = repository.save(booking);
+        repository.save(booking);
 
-        // Map the saved booking entity back to DTO and return it
+        return booking;
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public Booking getBookingByIdAndBooker(long bookingId, long bookerId) {
+        Booking booking = repository.findByIdAndBookerId(bookingId, bookerId);
+        return booking;
+    }
+//    @Override
+//    public List<BookingDto> getAllBookings() {
+//        List<Booking> bookings = repository.findAllBookingsWithDetails();
+//        return BookingMapper.mapToBookingDto(bookings);
+//    }
+
+//    @Override
+//    public Booking getBookingById(long bookingId) {
+//        Booking booking = repository.findById(bookingId)
+//                .orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
+//
+//        return booking;
+//    }
+
+//    @Override
+//    @Transactional
+//    public BookingDto updateBooking(long bookingId, BookingDto bookingDto) {
+//        Booking booking = repository.findById(bookingId)
+//                .orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
+//
+//
+//        if (bookingDto.getStart() != null) {
+//            booking.setStart(bookingDto.getStart());
+//        }
+//
+//        if (bookingDto.getEnd() != null) {
+//            booking.setEnd(bookingDto.getEnd());
+//        }
+//
+//        booking = repository.save(booking); // Save the updated item
+//
+//
 //        return BookingMapper.mapToBookingDto(booking);
-        return repository.save(booking);
-    }
+//    }
+//
+//    @Override
+//    @Transactional
+//    public void deleteBookingById(long bookingId) {
+//        if (bookingId < 1) {
+//            throw new IllegalArgumentException("Booking ID must be greater than 0");
+//        }
+//        repository.deleteById(bookingId);
+//    }
 
-
-    @Override
-    public BookingDto getBookingById(long bookingId) {
-        Booking booking = repository.findById(bookingId)
-                .orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
-
-        return BookingMapper.mapToBookingDto(booking);
-    }
-
-    @Override
-    @Transactional
-    public BookingDto updateBooking(long bookingId, BookingDto bookingDto) {
-        Booking booking = repository.findById(bookingId)
-                .orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
-
-
-        if (bookingDto.getStart() != null) {
-            booking.setStart(bookingDto.getStart());
-        }
-
-        if (bookingDto.getEnd() != null) {
-            booking.setEnd(bookingDto.getEnd());
-        }
-
-        booking = repository.save(booking); // Save the updated item
-
-
-        return BookingMapper.mapToBookingDto(booking);
-    }
-
-    @Override
-    @Transactional
-    public void deleteBookingById(long bookingId) {
-        if (bookingId < 1) {
-            throw new IllegalArgumentException("Booking ID must be greater than 0");
-        }
-        repository.deleteById(bookingId);
-    }
-
-    @Override
-    public List<BookingDto> getAllBookings() {
-        List<Booking> bookings = repository.findAll();
-        return BookingMapper.mapToBookingDto(bookings);
-    }
+//    @Override
+//    public List<BookingDto> getAllBookings() {
+//        List<Booking> bookings = repository.findAll();
+//        return BookingMapper.mapToBookingDto(bookings);
+//    }
 }
