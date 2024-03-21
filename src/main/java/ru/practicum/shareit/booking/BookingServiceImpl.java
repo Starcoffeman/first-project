@@ -12,7 +12,9 @@ import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Transactional(readOnly = true)
@@ -26,26 +28,27 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     public Booking setBookingApproval(long userId,long bookingId, boolean approved) {
-        // Находим бронирование по его ID
         Booking booking = repository.getReferenceById(bookingId);
-//        if(booking.getBooker().getId()!=userId){
-//            throw new ResourceNotFoundException("dsada");
-//        }
-        // Устанавливаем подтверждение владельцем
-        if (approved) {
-            booking.setStatus(BookingStatus.APPROVED);
+        if(booking.getItem().getOwner()==userId) {
 
+            if (booking.getStatus() == BookingStatus.APPROVED) {
+                throw new ValidationException("Dsa");
+            }
+
+            if (approved) {
+                booking.setStatus(BookingStatus.APPROVED);
+            } else {
+                booking.setStatus(BookingStatus.REJECTED);
+            }
+            return repository.save(booking);
         } else {
-            booking.setStatus(BookingStatus.CANCELED);
+            throw new ResourceNotFoundException("dasd");
         }
-        // Сохраняем обновленное бронирование в базе данных
-        return repository.save(booking);
     }
 
     @Override
     @Transactional
     public Booking createBooking(long userId, BookingDto bookingDto) {
-
         if (bookingDto.getStart() == null) {
             throw new ValidationException("Booking start time cannot be null");
         }
@@ -70,17 +73,19 @@ public class BookingServiceImpl implements BookingService {
             throw new ValidationException("Booking start time cannot be in the past");
         }
 
-        // Проверка на то, что время окончания бронирования не может быть раньше времени начала
         if (bookingDto.getEnd().isBefore(bookingDto.getStart())) {
             throw new ValidationException("Booking end time cannot be before booking start time");
         }
 
-        // Проверка на то, что время начала бронирования не может быть равным времени окончания
         if (bookingDto.getStart().isEqual(bookingDto.getEnd())) {
             throw new ValidationException("Booking start time cannot be equal to booking end time");
         }
 
-        // Create a new Booking object
+        long ownerId = itemRepository.getReferenceById(bookingDto.getItemId()).getOwner();
+        if (userId == ownerId) {
+            throw new ResourceNotFoundException("User cannot book own item");
+        }
+
         Booking booking = new Booking();
         booking.setStart(bookingDto.getStart());
         booking.setEnd(bookingDto.getEnd());
@@ -88,9 +93,9 @@ public class BookingServiceImpl implements BookingService {
         booking.setItem(itemRepository.getReferenceById(bookingDto.getItemId()));
         booking.setStatus(BookingStatus.WAITING);
 
-        // Save the new booking to the database
-        repository.save(booking);
 
+
+        repository.save(booking);
         return booking;
     }
 
@@ -101,24 +106,74 @@ public class BookingServiceImpl implements BookingService {
         // Попытка найти бронирование по bookingId
         Booking booking = getBookingById(bookingId);
 
-        // Проверка, является ли пользователь владельцем предмета, связанного с бронированием
         if (booking.getItem().getOwner() == userId) {
             return booking;
         }
 
-        // Если пользователь не является владельцем предмета, осуществить поиск по booker.id
         if (booking.getBooker().getId() == userId) {
             return booking;
         }
 
-        // Если бронирование не найдено или пользователь не связан с ним, вернуть ошибку
         throw new ResourceNotFoundException("Booking not found for user with ID: " + userId);
     }
 
     @Override
+    @Transactional
     public Booking getBookingById(long bookingId) {
         return repository.findById(bookingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
+    }
+
+
+
+
+    @Override
+    public List<Booking> findBookingsByBooker_Id(long userId) {
+        List<Booking> bookings = repository.findBookingsByBooker_Id(userId);
+        bookings.sort(Comparator.comparing(Booking::getStart).reversed());
+
+        if(bookings.isEmpty()){
+            throw new ResourceNotFoundException("Booking not found with Booker ID: " + userId);
+        }
+        return bookings;
+    }
+
+    @Override
+    public List<Booking> findBookingsByItem_Owner(long userId) {
+        List<Booking> bookings = repository.findBookingsByItem_Owner(userId);
+        if(bookings.isEmpty()){
+            throw new ResourceNotFoundException("Booking not found with Owner ID: " + userId);
+        }
+
+        bookings.sort(Comparator.comparing(Booking::getStart).reversed());
+        return bookings;
+    }
+
+    @Override
+    public boolean existsBookingByBooker_IdOrItem_Owner(long bookerId, long ownerId) {
+        return repository.existsBookingsByBooker_IdOrItem_Owner(bookerId, ownerId);
+    }
+
+
+    @Override
+    public Booking findBookingByItem_Owner(long userId) {
+        return repository.findBookingByItem_Owner(userId);
+    }
+
+
+    @Override
+    public List<Booking> findBookingsByStatusAndBooker_Id(BookingStatus status, long userId) {
+        List<Booking> bookings = repository.findBookingsByStatusAndBooker_Id(status, userId);
+        bookings.sort(Comparator.comparing(Booking::getStart).reversed());
+        return bookings;
+
+    }
+
+    @Override
+    public List<Booking> findBookingsByBooker_IdOrItem_Owner(long bookerId, long ownerId) {
+        List<Booking> bookings = repository.findBookingsByBooker_IdOrItem_Owner(bookerId,ownerId);
+        bookings.sort(Comparator.comparing(Booking::getStart).reversed());
+        return bookings;
     }
 
 

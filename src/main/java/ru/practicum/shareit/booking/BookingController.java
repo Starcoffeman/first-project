@@ -7,6 +7,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingStatus;
+import ru.practicum.shareit.exceptions.ResourceNotFoundException;
+import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.intf.Create;
 import ru.practicum.shareit.item.ItemService;
 
@@ -39,6 +42,71 @@ public class BookingController {
     public Booking getBookingByIdAndBooker(@PathVariable long bookingId, @RequestHeader(USER_ID) long userId) {
         return bookingService.getBookingByIdAndBookerOrOwner(bookingId,userId);
     }
+
+
+
+    @GetMapping("/")
+    public List<Booking> getBookingsByBooker(@RequestHeader(USER_ID) long userId) {
+        return bookingService.findBookingsByBooker_Id(userId);
+    }
+
+    @GetMapping("/owner")
+    public List<Booking> getBookingsByOwner_Id(@RequestHeader(USER_ID) long userId,
+                                               @RequestParam(value = "state", required = false) String state
+                                                ) {
+
+        if (!bookingService.existsBookingByBooker_IdOrItem_Owner(userId, userId)) {
+            throw new ResourceNotFoundException("No bookings found for user with ID: " + userId);
+        }
+
+        if (state!=null){
+            if(state.equals("ALL")){
+                return bookingService.findBookingsByItem_Owner(userId);
+            }
+            if(state.equals("FUTURE")){
+                return bookingService.findBookingsByItem_Owner(userId);
+            }
+
+            throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
+        } else {
+            return bookingService.findBookingsByBooker_IdOrItem_Owner(userId,userId);
+        }
+    }
+
+//    @GetMapping("/owner")
+//    public List<Booking> getBookingsByBooker_Id(@RequestHeader(USER_ID) long userId,
+//                                            @RequestParam(value = "state", required = false) String state) {
+//        if (state != null) {
+//            BookingStatus status;
+//            try {
+//                status = BookingStatus.valueOf(state.toUpperCase());
+//            } catch (IllegalArgumentException e) {
+//                throw new ValidationException("Unknown state: " + state);
+//            }
+//            return bookingService.findBookingsByStatusAndBooker_Id(status,userId);
+//        } else {
+//            return bookingService.findBookingsByBookerId(userId);
+//        }
+//    }
+
+    @GetMapping
+    public List<Booking> getBookingsByBooker_Id(@RequestHeader(USER_ID) long userId,
+                                            @RequestParam(value = "state", required = false) String state) {
+
+        if (state!=null){
+            if(state.equals("ALL")){
+                return bookingService.findBookingsByBooker_Id(userId);
+            }
+            if(state.equals("FUTURE")){
+                return bookingService.findBookingsByBooker_Id(userId);
+            }
+
+            throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
+        } else {
+        return bookingService.findBookingsByBooker_IdOrItem_Owner(userId,userId);
+        }
+    }
+
 
 }
 
