@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking;
 
+import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
@@ -25,11 +26,20 @@ public interface BookingService {
 
     List<Booking> findBookingsByItem_Owner(long userId);
 
-    Booking findBookingByItem_Owner(long userId);
-
-    List<Booking> findBookingsByStatusAndBooker_Id(BookingStatus status, long userId);
-
     List<Booking> findBookingsByBooker_IdOrItem_Owner(long bookerId,long ownerId);
 
+    List<Booking> findBookingsByBooker_IdAndStatus_Waiting(long userId);
+
+    List<Booking> findBookingsByItem_OwnerAndStatus_Waiting(long userId);
+
+    List<Booking> findBookingsByItem_OwnerAndStatus_Rejected(long userId);
+    List<Booking> findBookingsByBooker_IdAndStatus_Rejected(long userId);
+
+    List<Booking> findPastBookingsByOwner_Id(long userId);
+    List<Booking> findPastBookingsByBookerId(long userId);
+
+    List<Booking> findCurrentBookingsByBookerId(long userId);
+
+    List<Booking> findCurrentBookingsByOwner_Id(long userId);
 
 }

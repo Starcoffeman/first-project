@@ -17,11 +17,16 @@ public interface BookingRepository  extends JpaRepository<Booking, Long> {
 
     List<Booking> findBookingsByItem_Owner(long userId);
 
-    Booking findBookingByItem_Owner(long userId);
+//    Booking findBookingByItem_Owner(long userId);
 
     boolean existsBookingsByBooker_IdOrItem_Owner(long bookerId, long ownerId);
     List<Booking> findBookingsByBooker_IdOrItem_Owner(long bookerId,long ownerId);
 
-    List<Booking> findBookingsByStatusAndBooker_Id(BookingStatus status, long userId);
+//    List<Booking> findBookingsByStatusAndBooker_Id(BookingStatus status, long userId);
+//
+//    List<Booking> findBookingByBooker_IdAndStatus_Waiting(long userId);
+//
+//    List<Booking> findBookingByItem_OwnerAndStatus_Waiting(long userId);
+
 
 }

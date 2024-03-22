@@ -12,9 +12,11 @@ import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -154,26 +156,111 @@ public class BookingServiceImpl implements BookingService {
         return repository.existsBookingsByBooker_IdOrItem_Owner(bookerId, ownerId);
     }
 
-
-    @Override
-    public Booking findBookingByItem_Owner(long userId) {
-        return repository.findBookingByItem_Owner(userId);
-    }
-
-
-    @Override
-    public List<Booking> findBookingsByStatusAndBooker_Id(BookingStatus status, long userId) {
-        List<Booking> bookings = repository.findBookingsByStatusAndBooker_Id(status, userId);
-        bookings.sort(Comparator.comparing(Booking::getStart).reversed());
-        return bookings;
-
-    }
-
     @Override
     public List<Booking> findBookingsByBooker_IdOrItem_Owner(long bookerId, long ownerId) {
         List<Booking> bookings = repository.findBookingsByBooker_IdOrItem_Owner(bookerId,ownerId);
         bookings.sort(Comparator.comparing(Booking::getStart).reversed());
         return bookings;
+    }
+
+
+    @Override
+    public List<Booking> findBookingsByBooker_IdAndStatus_Waiting(long userId) {
+        List<Booking> bookings = repository.findBookingsByBooker_Id(userId);
+        List<Booking> result = new ArrayList<>();
+        for(Booking booking : bookings){
+            if(booking.getStatus()==BookingStatus.WAITING){
+                result.add(booking);
+            }
+        }
+        result.sort(Comparator.comparing(Booking::getStart).reversed());
+        return result;
+    }
+
+    @Override
+    public List<Booking> findBookingsByItem_OwnerAndStatus_Waiting(long userId) {
+        List<Booking> bookings = repository.findBookingsByItem_Owner(userId);
+        List<Booking> result = new ArrayList<>();
+        for(Booking booking : bookings){
+            if(booking.getStatus()==BookingStatus.WAITING){
+                result.add(booking);
+            }
+        }
+        result.sort(Comparator.comparing(Booking::getStart).reversed());
+        return result;
+    }
+
+    @Override
+    public List<Booking> findBookingsByItem_OwnerAndStatus_Rejected(long userId) {
+        List<Booking> bookings = repository.findBookingsByItem_Owner(userId);
+        List<Booking> result = new ArrayList<>();
+        for(Booking booking : bookings){
+            if(booking.getStatus()==BookingStatus.REJECTED){
+                result.add(booking);
+            }
+        }
+        result.sort(Comparator.comparing(Booking::getStart).reversed());
+        return result;
+    }
+
+    @Override
+    public List<Booking> findBookingsByBooker_IdAndStatus_Rejected(long userId) {
+        List<Booking> bookings = repository.findBookingsByBooker_Id(userId);
+        List<Booking> result = new ArrayList<>();
+        for(Booking booking : bookings){
+            if(booking.getStatus()==BookingStatus.REJECTED){
+                result.add(booking);
+            }
+        }
+        result.sort(Comparator.comparing(Booking::getStart).reversed());
+        return result;
+    }
+
+    @Override
+    public List<Booking> findPastBookingsByOwner_Id(long userId) {
+        List<Booking> pastBookings = repository.findBookingsByItem_Owner(userId);
+        LocalDateTime now = LocalDateTime.now();
+
+        // Filter past bookings and sort by end time
+        return pastBookings.stream()
+                .filter(booking -> booking.getEnd().isBefore(now))
+                .sorted(Comparator.comparing(Booking::getEnd).reversed()) // Sort by end time in descending order
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Booking> findPastBookingsByBookerId(long userId) {
+        List<Booking> pastBookings = repository.findBookingsByBooker_Id(userId);
+        LocalDateTime now = LocalDateTime.now();
+
+        // Filter past bookings and sort by end time
+        return pastBookings.stream()
+                .filter(booking -> booking.getEnd().isBefore(now))
+                .sorted(Comparator.comparing(Booking::getEnd).reversed()) // Sort by end time in descending order
+                .collect(Collectors.toList());
+    }
+    @Override
+    public List<Booking> findCurrentBookingsByOwner_Id(long userId) {
+        List<Booking> currentBookings = repository.findBookingsByItem_Owner(userId);
+        LocalDateTime now = LocalDateTime.now();
+
+        // Filter current bookings and sort by start time
+        return currentBookings.stream()
+                .filter(booking -> booking.getStart().isBefore(now) && booking.getEnd().isAfter(now))
+                .sorted(Comparator.comparing(Booking::getStart)) // Sort by start time in ascending order
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Booking> findCurrentBookingsByBookerId(long userId) {
+        List<Booking> currentBookings = repository.findBookingsByBooker_Id(userId);
+        LocalDateTime now = LocalDateTime.now();
+
+        // Filter current bookings and sort by start time
+        return currentBookings.stream()
+                .filter(booking -> booking.getStart().isBefore(now) && booking.getEnd().isAfter(now))
+                .sorted(Comparator.comparing(Booking::getStart)) // Sort by start time in ascending order
+                .collect(Collectors.toList());
     }
 
 

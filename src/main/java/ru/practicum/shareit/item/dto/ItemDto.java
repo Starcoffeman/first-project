@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.shareit.booking.model.LastBooking;
+import ru.practicum.shareit.booking.model.NextBooking;
 import ru.practicum.shareit.intf.Create;
 
 import javax.validation.constraints.NotBlank;
@@ -26,4 +28,7 @@ public class ItemDto {
     @NotNull(groups = Create.class, message = "Описание не может быть пустым")
     private Boolean available;
 
+    private NextBooking nextBooking;
+
+    private LastBooking lastBooking;
 }

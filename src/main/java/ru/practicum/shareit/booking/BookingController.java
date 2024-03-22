@@ -13,6 +13,7 @@ import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.intf.Create;
 import ru.practicum.shareit.item.ItemService;
 
+import javax.print.DocFlavor;
 import java.util.List;
 
 @RestController
@@ -52,56 +53,55 @@ public class BookingController {
 
     @GetMapping("/owner")
     public List<Booking> getBookingsByOwner_Id(@RequestHeader(USER_ID) long userId,
-                                               @RequestParam(value = "state", required = false) String state
-                                                ) {
+                                               @RequestParam(value = "state", required = false) String state) {
 
         if (!bookingService.existsBookingByBooker_IdOrItem_Owner(userId, userId)) {
             throw new ResourceNotFoundException("No bookings found for user with ID: " + userId);
         }
 
-        if (state!=null){
-            if(state.equals("ALL")){
-                return bookingService.findBookingsByItem_Owner(userId);
+        if (state != null) {
+            switch (state) {
+                case "ALL":
+                    return bookingService.findBookingsByItem_Owner(userId);
+                case "FUTURE":
+                    return bookingService.findBookingsByItem_Owner(userId);
+                case "WAITING":
+                    return bookingService.findBookingsByItem_OwnerAndStatus_Waiting(userId);
+                case "REJECTED":
+                    return bookingService.findBookingsByItem_OwnerAndStatus_Rejected(userId);
+                case "CURRENT":
+                    return bookingService.findCurrentBookingsByOwner_Id(userId);
+                case "PAST":
+                    return bookingService.findPastBookingsByOwner_Id(userId);
+                default:
+                    throw new ValidationException("Unknown state: " + state);
             }
-            if(state.equals("FUTURE")){
-                return bookingService.findBookingsByItem_Owner(userId);
-            }
-
-            throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
         } else {
-            return bookingService.findBookingsByBooker_IdOrItem_Owner(userId,userId);
+            return bookingService.findBookingsByBooker_IdOrItem_Owner(userId, userId);
         }
     }
-
-//    @GetMapping("/owner")
-//    public List<Booking> getBookingsByBooker_Id(@RequestHeader(USER_ID) long userId,
-//                                            @RequestParam(value = "state", required = false) String state) {
-//        if (state != null) {
-//            BookingStatus status;
-//            try {
-//                status = BookingStatus.valueOf(state.toUpperCase());
-//            } catch (IllegalArgumentException e) {
-//                throw new ValidationException("Unknown state: " + state);
-//            }
-//            return bookingService.findBookingsByStatusAndBooker_Id(status,userId);
-//        } else {
-//            return bookingService.findBookingsByBookerId(userId);
-//        }
-//    }
 
     @GetMapping
     public List<Booking> getBookingsByBooker_Id(@RequestHeader(USER_ID) long userId,
                                             @RequestParam(value = "state", required = false) String state) {
 
         if (state!=null){
-            if(state.equals("ALL")){
-                return bookingService.findBookingsByBooker_Id(userId);
+            switch (state){
+                case "ALL":
+                    return bookingService.findBookingsByBooker_Id(userId);
+                case "FUTURE":
+                    return bookingService.findBookingsByBooker_Id(userId);
+                case "WAITING":
+                    return bookingService.findBookingsByBooker_IdAndStatus_Waiting(userId);
+                case "REJECTED":
+                    return bookingService.findBookingsByBooker_IdAndStatus_Rejected(userId);
+                case "PAST":
+                    return bookingService.findPastBookingsByBookerId(userId);
+                case "CURRENT":
+                    return bookingService.findCurrentBookingsByBookerId(userId);
+                default:
+                    throw new ValidationException("Unknown state: " + state);
             }
-            if(state.equals("FUTURE")){
-                return bookingService.findBookingsByBooker_Id(userId);
-            }
-
-            throw new ValidationException("Unknown state: UNSUPPORTED_STATUS");
         } else {
         return bookingService.findBookingsByBooker_IdOrItem_Owner(userId,userId);
         }
