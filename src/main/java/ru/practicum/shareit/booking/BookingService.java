@@ -1,11 +1,12 @@
 package ru.practicum.shareit.booking;
 
-import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.model.BookingStatus;
+import ru.practicum.shareit.booking.model.LastBooking;
+import ru.practicum.shareit.booking.model.NextBooking;
 
 import java.util.List;
+import java.util.Optional;
 
 
 public interface BookingService {
@@ -41,5 +42,7 @@ public interface BookingService {
     List<Booking> findCurrentBookingsByBookerId(long userId);
 
     List<Booking> findCurrentBookingsByOwner_Id(long userId);
+
+    NextBooking findNextBookingByItemId(long itemId);
 
 }

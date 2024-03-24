@@ -1,6 +1,9 @@
 drop table if exists USERS CASCADE;
 drop table if exists ITEMS CASCADE;
 drop table if exists BOOKINGS CASCADE;
+drop table if exists lastBooking CASCADE;
+drop table if exists nextBooking CASCADE;
+
 
 CREATE TABLE IF NOT EXISTS users
 (

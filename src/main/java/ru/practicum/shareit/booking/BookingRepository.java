@@ -6,7 +6,9 @@ import org.springframework.data.jpa.repository.Query;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
+import ru.practicum.shareit.booking.model.NextBooking;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,11 +24,25 @@ public interface BookingRepository  extends JpaRepository<Booking, Long> {
     boolean existsBookingsByBooker_IdOrItem_Owner(long bookerId, long ownerId);
     List<Booking> findBookingsByBooker_IdOrItem_Owner(long bookerId,long ownerId);
 
-//    List<Booking> findBookingsByStatusAndBooker_Id(BookingStatus status, long userId);
-//
-//    List<Booking> findBookingByBooker_IdAndStatus_Waiting(long userId);
-//
-//    List<Booking> findBookingByItem_OwnerAndStatus_Waiting(long userId);
+    // Найти последнее бронирование для предмета по его идентификатору и отсортировать по времени окончания в порядке убывания
+//    Optional<Booking> findTopByItemIdOrderByEndDesc(Long itemId);
 
+    // Найти следующее бронирование для предмета по его идентификатору, начинающееся после указанного времени и отсортировать по времени начала в порядке возрастания
+//    Optional<Booking> findTopByItemIdAndStartAfterOrderByStart(Long itemId, LocalDateTime start);
+//
+//    Optional<Booking> findTopByItemIdOrderByEndDesc(long itemId);
+//
+//    Optional<Booking> findTopByItemIdAndStartAfterOrderByStart(long itemId, LocalDateTime start);
+
+
+    List<Booking> findByItemIdOrderByStartDesc(long itemId);
+    List<Booking> findByItemIdAndStatusOrderByStartAsc(long itemId, BookingStatus status);
 
 }
+
+
+
+
+
+
+

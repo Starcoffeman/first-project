@@ -6,16 +6,15 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
+import ru.practicum.shareit.booking.model.NextBooking;
 import ru.practicum.shareit.exceptions.ResourceNotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
+import ru.practicum.shareit.item.ItemMapper;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -97,6 +96,7 @@ public class BookingServiceImpl implements BookingService {
 
 
 
+
         repository.save(booking);
         return booking;
     }
@@ -125,9 +125,6 @@ public class BookingServiceImpl implements BookingService {
         return repository.findById(bookingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
     }
-
-
-
 
     @Override
     public List<Booking> findBookingsByBooker_Id(long userId) {
@@ -262,6 +259,30 @@ public class BookingServiceImpl implements BookingService {
                 .sorted(Comparator.comparing(Booking::getStart)) // Sort by start time in ascending order
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public NextBooking findNextBookingByItemId(long itemId) {
+        List<Booking> bookings = repository.findByItemIdAndStatusOrderByStartAsc(itemId, BookingStatus.WAITING);
+        if (!bookings.isEmpty()) {
+            Booking nextBooking = bookings.get(0);
+            return mapToNextBooking(nextBooking);
+        } else {
+            return null; // or throw an exception, depending on your design
+        }
+    }
+
+    // Modify mapToNextBooking method to return NextBooking
+    private NextBooking mapToNextBooking(Booking booking) {
+        NextBooking nextBooking = new NextBooking();
+        // Map relevant attributes from booking to nextBooking
+        nextBooking.setId(booking.getId());
+        nextBooking.setBookerId(booking.getBooker().getId());
+        // Set other attributes as needed
+        return nextBooking;
+    }
+
+
+
 
 
 }
