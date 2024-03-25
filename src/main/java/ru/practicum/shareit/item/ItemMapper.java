@@ -27,8 +27,6 @@ public class ItemMapper {
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getAvailable())
-                .lastBooking(new LastBooking(0,0))
-                .nextBooking(new NextBooking(0,0))
                 .build();
     }
 

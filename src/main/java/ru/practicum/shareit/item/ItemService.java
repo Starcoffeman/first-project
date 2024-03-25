@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.model.LastBooking;
@@ -25,11 +26,13 @@ public interface ItemService {
     List<ItemDto> findItemsByOwner(long userId);
 
     List<ItemDto> searchItems(String searchText);
-//    LastBooking findLastBookingByItemId(long itemId);
+
+    //    LastBooking findLastBookingByItemId(long itemId);
 //    User findLastBookerByItemId(long itemId);
 //    User findNextBookerByItemId(long itemId);
+    BookingDto findNextBookingByItemId(long itemId);
 
-
+    BookingDto findLastBookingByItemId(long itemId);
 
 
 }

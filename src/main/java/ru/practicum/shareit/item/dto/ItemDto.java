@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.LastBooking;
 import ru.practicum.shareit.booking.model.NextBooking;
 import ru.practicum.shareit.intf.Create;
@@ -31,8 +32,8 @@ public class ItemDto {
     @NotNull(groups = Create.class, message = "Описание не может быть пустым")
     private Boolean available;
 
-    private LastBooking lastBooking;
+    private BookingDto lastBooking;
 
-    private NextBooking nextBooking;
+    private BookingDto nextBooking;
 
 }

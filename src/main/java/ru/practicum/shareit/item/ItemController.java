@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.exceptions.ResourceNotFoundException;
 import ru.practicum.shareit.intf.Create;
 import ru.practicum.shareit.intf.Update;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -21,6 +22,7 @@ public class ItemController {
     private static final String USER_ID = "X-Sharer-User-Id";
     private final ItemService itemService;
 
+
     @GetMapping("/{itemId}")
     @ResponseStatus(HttpStatus.OK)
     public ItemDto getItemById(@PathVariable("itemId") long itemId) {
@@ -33,6 +35,14 @@ public class ItemController {
     public ItemDto add(@RequestHeader(USER_ID) long userId,
                     @Validated(Create.class) @RequestBody ItemDto itemDto) {
         log.info("Добавление предмета у пользователя под id: {}", userId);
+//        ItemDto itemDto1 = itemService.saveItem(userId,itemDto);
+//        try{
+//            itemDto1.setLastBooking(itemService.findLastBookingByItemId(itemDto.getId()));
+//            itemDto1.setNextBooking(itemService.findNextBookingByItemId(itemDto.getId()));
+//        } catch (ResourceNotFoundException e ){
+//            itemDto1.setNextBooking(null);
+//            itemDto1.setLastBooking(null);
+//        }
         return itemService.saveItem(userId, itemDto);
     }
 
