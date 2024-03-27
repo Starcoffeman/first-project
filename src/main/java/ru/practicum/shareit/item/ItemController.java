@@ -38,14 +38,7 @@ public class ItemController {
     public ItemDto add(@RequestHeader(USER_ID) long userId,
                     @Validated(Create.class) @RequestBody ItemDto itemDto) {
         log.info("Добавление предмета у пользователя под id: {}", userId);
-//        ItemDto itemDto1 = itemService.saveItem(userId,itemDto);
-//        try{
-//            itemDto1.setLastBooking(itemService.findLastBookingByItemId(itemDto.getId()));
-//            itemDto1.setNextBooking(itemService.findNextBookingByItemId(itemDto.getId()));
-//        } catch (ResourceNotFoundException e ){
-//            itemDto1.setNextBooking(null);
-//            itemDto1.setLastBooking(null);
-//        }
+
         return itemService.saveItem(userId, itemDto);
     }
 
@@ -72,7 +65,7 @@ public class ItemController {
     }
 
     @PostMapping("/{itemId}/comment")
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.OK)
     public CommentDto addComment(@RequestHeader(USER_ID) long userId, @PathVariable("itemId") long itemId,
                               @RequestBody CommentDto commentDto) {
         log.info("Добавление комментария к предмету под id: {}", itemId);

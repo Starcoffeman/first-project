@@ -21,6 +21,7 @@ import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -177,25 +178,6 @@ public class ItemServiceImpl implements ItemService {
         return ItemMapper.mapToItemDto(items);
     }
 
-
-//    public BookingDto findNextBookingByItemId(long itemId) {
-//        List<Booking> bookings = bookingRepository.findBookingsByItem_Owner(itemId);
-//        List<Booking> result = new ArrayList<>();
-//        for (Booking booking : bookings) {
-//            if (booking.getStatus() == BookingStatus.WAITING) {
-//                result.add(booking);
-//            }
-//        }
-//
-//        // Сортируем список бронирований по времени начала в обратном порядке
-//        result.sort(Comparator.comparing(Booking::getStart).reversed());
-//        if (result.isEmpty()) {
-//            return null;
-//        }
-//        return BookingMapper.mapToBookingDto(result.get(0));
-//    }
-
-
     public BookingDto findNextBookingByItemId(long itemId) {
         List<Booking> bookings = bookingRepository.findBookingsByItem_Owner(itemId);
         BookingDto nextBookingDto = null;
@@ -260,79 +242,5 @@ public class ItemServiceImpl implements ItemService {
 
         return commentDto;
     }
-
-
-//    public void updateLastBooking(Long itemId, Long bookingId) {
-//        Item item = itemRepository.findById(itemId)
-//                .orElseThrow(() -> new IllegalArgumentException("Item not found with ID: " + itemId));
-//        Booking booking = bookingRepository.findById(bookingId)
-//                .orElseThrow(() -> new IllegalArgumentException("Booking not found with ID: " + bookingId));
-//        item.setLastBooking(LastBooking.builder()
-//                .id(booking.getId())
-//                .bookerId(booking.getBooker().getId())
-//                .build());
-//        itemRepository.save(item);
-//    }
-//
-//    public void updateNextBooking(Long itemId, Long bookingId) {
-//        Item item = itemRepository.findById(itemId)
-//                .orElseThrow(() -> new IllegalArgumentException("Item not found with ID: " + itemId));
-//        Booking booking = bookingRepository.findById(bookingId)
-//                .orElseThrow(() -> new IllegalArgumentException("Booking not found with ID: " + bookingId));
-//        item.setNextBooking(NextBooking.builder()
-//                .id(booking.getId())
-//                .bookerId(booking.getBooker().getId())
-//                .build());
-//        itemRepository.save(item);
-//    }
-//
-//    public Optional<Booking> findLastBooking(Long itemId) {
-//        Item item = itemRepository.findById(itemId)
-//                .orElseThrow(() -> new IllegalArgumentException("Item not found with ID: " + itemId));
-//        LastBooking lastBooking = item.getLastBooking();
-//        if (lastBooking != null) {
-//            return bookingRepository.findById(lastBooking.getId());
-//        }
-//        return Optional.empty();
-//    }
-//
-//    public Optional<Booking> findNextBooking(Long itemId) {
-//        Item item = itemRepository.findById(itemId)
-//                .orElseThrow(() -> new IllegalArgumentException("Item not found with ID: " + itemId));
-//        NextBooking nextBooking = item.getNextBooking();
-//        if (nextBooking != null) {
-//            return bookingRepository.findById(nextBooking.getId());
-//        }
-//        return Optional.empty();
-//    }
-//
-//    public void bookItem(Long itemId, Long bookingId) {
-//        updateLastBooking(itemId, bookingId);
-//
-//        Item item = itemRepository.findById(itemId)
-//                .orElseThrow(() -> new IllegalArgumentException("Item not found with ID: " + itemId));
-//        item.setAvailable(false);
-//        itemRepository.save(item);
-//    }
-//
-//    public void unbookItem(Long itemId) {
-//        Item item = itemRepository.findById(itemId)
-//                .orElseThrow(() -> new IllegalArgumentException("Item not found with ID: " + itemId));
-//        item.setAvailable(true);
-//        itemRepository.save(item);
-//    }
-//
-//    public void processNextBooking(Long itemId) {
-//        Optional<Booking> optionalNextBooking = findNextBooking(itemId);
-//        if (optionalNextBooking.isPresent()) {
-//            Booking nextBooking = optionalNextBooking.get();
-//            if (nextBooking.getStatus() == BookingStatus.WAITING) {
-//                nextBooking.setStatus(BookingStatus.APPROVED);
-//                bookingRepository.save(nextBooking);
-//                unbookItem(itemId);
-//            }
-//        }
-//    }
-
 
 }
