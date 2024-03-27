@@ -19,5 +19,6 @@ public class CommentDto {
     @NotBlank(groups = Create.class, message = "Текст не может быть пустым")
     private String text;
 
+    @NotBlank(groups = Create.class, message = "Имя не может быть пустым")
     private String authorName;
 }

@@ -7,9 +7,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.intf.Create;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.model.User;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -46,7 +44,7 @@ public class UserController {
 
     @DeleteMapping("/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public String delete(@PathVariable("userId") long userId){
+    public String delete(@PathVariable("userId") long userId) {
         log.info("Удалён пользователь под id: {}", userId);
         userService.deleteUserById(userId);
         return "Пользователь успешно удалён";

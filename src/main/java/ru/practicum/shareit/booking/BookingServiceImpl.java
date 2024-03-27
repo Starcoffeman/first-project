@@ -6,15 +6,15 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
-import ru.practicum.shareit.booking.model.NextBooking;
 import ru.practicum.shareit.exceptions.ResourceNotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
-import ru.practicum.shareit.item.ItemMapper;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,9 +28,9 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public Booking setBookingApproval(long userId,long bookingId, boolean approved) {
+    public Booking setBookingApproval(long userId, long bookingId, boolean approved) {
         Booking booking = repository.getReferenceById(bookingId);
-        if(booking.getItem().getOwner()==userId) {
+        if (booking.getItem().getOwner() == userId) {
 
             if (booking.getStatus() == BookingStatus.APPROVED) {
                 throw new ValidationException("Dsa");
@@ -93,10 +93,6 @@ public class BookingServiceImpl implements BookingService {
         booking.setBooker(userRepository.getReferenceById(userId));
         booking.setItem(itemRepository.getReferenceById(bookingDto.getItemId()));
         booking.setStatus(BookingStatus.WAITING);
-
-
-
-
         repository.save(booking);
         return booking;
     }
@@ -104,8 +100,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
-    public Booking getBookingByIdAndBookerOrOwner( long bookingId, long userId) {
-        // Попытка найти бронирование по bookingId
+    public Booking getBookingByIdAndBookerOrOwner(long bookingId, long userId) {
         Booking booking = getBookingById(bookingId);
 
         if (booking.getItem().getOwner() == userId) {
@@ -131,7 +126,7 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> bookings = repository.findBookingsByBooker_Id(userId);
         bookings.sort(Comparator.comparing(Booking::getStart).reversed());
 
-        if(bookings.isEmpty()){
+        if (bookings.isEmpty()) {
             throw new ResourceNotFoundException("Booking not found with Booker ID: " + userId);
         }
         return bookings;
@@ -140,7 +135,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<Booking> findBookingsByItem_Owner(long userId) {
         List<Booking> bookings = repository.findBookingsByItem_Owner(userId);
-        if(bookings.isEmpty()){
+        if (bookings.isEmpty()) {
             throw new ResourceNotFoundException("Booking not found with Owner ID: " + userId);
         }
 
@@ -155,18 +150,17 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<Booking> findBookingsByBooker_IdOrItem_Owner(long bookerId, long ownerId) {
-        List<Booking> bookings = repository.findBookingsByBooker_IdOrItem_Owner(bookerId,ownerId);
+        List<Booking> bookings = repository.findBookingsByBooker_IdOrItem_Owner(bookerId, ownerId);
         bookings.sort(Comparator.comparing(Booking::getStart).reversed());
         return bookings;
     }
-
 
     @Override
     public List<Booking> findBookingsByBooker_IdAndStatus_Waiting(long userId) {
         List<Booking> bookings = repository.findBookingsByBooker_Id(userId);
         List<Booking> result = new ArrayList<>();
-        for(Booking booking : bookings){
-            if(booking.getStatus()==BookingStatus.WAITING){
+        for (Booking booking : bookings) {
+            if (booking.getStatus() == BookingStatus.WAITING) {
                 result.add(booking);
             }
         }
@@ -178,8 +172,8 @@ public class BookingServiceImpl implements BookingService {
     public List<Booking> findBookingsByItem_OwnerAndStatus_Waiting(long userId) {
         List<Booking> bookings = repository.findBookingsByItem_Owner(userId);
         List<Booking> result = new ArrayList<>();
-        for(Booking booking : bookings){
-            if(booking.getStatus()==BookingStatus.WAITING){
+        for (Booking booking : bookings) {
+            if (booking.getStatus() == BookingStatus.WAITING) {
                 result.add(booking);
             }
         }
@@ -191,8 +185,8 @@ public class BookingServiceImpl implements BookingService {
     public List<Booking> findBookingsByItem_OwnerAndStatus_Rejected(long userId) {
         List<Booking> bookings = repository.findBookingsByItem_Owner(userId);
         List<Booking> result = new ArrayList<>();
-        for(Booking booking : bookings){
-            if(booking.getStatus()==BookingStatus.REJECTED){
+        for (Booking booking : bookings) {
+            if (booking.getStatus() == BookingStatus.REJECTED) {
                 result.add(booking);
             }
         }
@@ -204,8 +198,8 @@ public class BookingServiceImpl implements BookingService {
     public List<Booking> findBookingsByBooker_IdAndStatus_Rejected(long userId) {
         List<Booking> bookings = repository.findBookingsByBooker_Id(userId);
         List<Booking> result = new ArrayList<>();
-        for(Booking booking : bookings){
-            if(booking.getStatus()==BookingStatus.REJECTED){
+        for (Booking booking : bookings) {
+            if (booking.getStatus() == BookingStatus.REJECTED) {
                 result.add(booking);
             }
         }
@@ -218,10 +212,9 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> pastBookings = repository.findBookingsByItem_Owner(userId);
         LocalDateTime now = LocalDateTime.now();
 
-        // Filter past bookings and sort by end time
         return pastBookings.stream()
                 .filter(booking -> booking.getEnd().isBefore(now))
-                .sorted(Comparator.comparing(Booking::getEnd).reversed()) // Sort by end time in descending order
+                .sorted(Comparator.comparing(Booking::getEnd).reversed())
                 .collect(Collectors.toList());
     }
 
@@ -230,21 +223,20 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> pastBookings = repository.findBookingsByBooker_Id(userId);
         LocalDateTime now = LocalDateTime.now();
 
-        // Filter past bookings and sort by end time
         return pastBookings.stream()
                 .filter(booking -> booking.getEnd().isBefore(now))
-                .sorted(Comparator.comparing(Booking::getEnd).reversed()) // Sort by end time in descending order
+                .sorted(Comparator.comparing(Booking::getEnd).reversed())
                 .collect(Collectors.toList());
     }
+
     @Override
     public List<Booking> findCurrentBookingsByOwner_Id(long userId) {
         List<Booking> currentBookings = repository.findBookingsByItem_Owner(userId);
         LocalDateTime now = LocalDateTime.now();
 
-        // Filter current bookings and sort by start time
         return currentBookings.stream()
                 .filter(booking -> booking.getStart().isBefore(now) && booking.getEnd().isAfter(now))
-                .sorted(Comparator.comparing(Booking::getStart)) // Sort by start time in ascending order
+                .sorted(Comparator.comparing(Booking::getStart))
                 .collect(Collectors.toList());
     }
 
@@ -253,36 +245,9 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> currentBookings = repository.findBookingsByBooker_Id(userId);
         LocalDateTime now = LocalDateTime.now();
 
-        // Filter current bookings and sort by start time
         return currentBookings.stream()
                 .filter(booking -> booking.getStart().isBefore(now) && booking.getEnd().isAfter(now))
-                .sorted(Comparator.comparing(Booking::getStart)) // Sort by start time in ascending order
+                .sorted(Comparator.comparing(Booking::getStart))
                 .collect(Collectors.toList());
     }
-
-    @Override
-    public NextBooking findNextBookingByItemId(long itemId) {
-        List<Booking> bookings = repository.findByItemIdAndStatusOrderByStartAsc(itemId, BookingStatus.WAITING);
-        if (!bookings.isEmpty()) {
-            Booking nextBooking = bookings.get(0);
-            return mapToNextBooking(nextBooking);
-        } else {
-            return null; // or throw an exception, depending on your design
-        }
-    }
-
-    // Modify mapToNextBooking method to return NextBooking
-    private NextBooking mapToNextBooking(Booking booking) {
-        NextBooking nextBooking = new NextBooking();
-        // Map relevant attributes from booking to nextBooking
-        nextBooking.setId(booking.getId());
-        nextBooking.setBookerId(booking.getBooker().getId());
-        // Set other attributes as needed
-        return nextBooking;
-    }
-
-
-
-
-
 }

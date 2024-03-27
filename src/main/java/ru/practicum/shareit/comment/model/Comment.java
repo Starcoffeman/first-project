@@ -1,6 +1,5 @@
 package ru.practicum.shareit.comment.model;
 
-
 import lombok.Data;
 
 import javax.persistence.*;

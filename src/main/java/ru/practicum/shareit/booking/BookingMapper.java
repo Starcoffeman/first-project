@@ -28,14 +28,5 @@ public class BookingMapper {
         return bookingDto;
     }
 
-    public static List<BookingDto> mapToBookingDto(Iterable<Booking> bookings) {
-        List<BookingDto> result = new ArrayList<>();
-
-        for (Booking booking : bookings) {
-            result.add(mapToBookingDto(booking));
-        }
-
-        return result;
-    }
 
 }

@@ -2,11 +2,12 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exceptions.ResourceNotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
-import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 @Service
@@ -18,26 +19,25 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> getAllUsers() {
-        List<User> users =repository.findAll();
+        List<User> users = repository.findAll();
         return UserMapper.mapToUserDto(users);
     }
 
     @Override
     @Transactional
     public UserDto saveUser(UserDto userDto) {
-        if(userDto.getName() ==null){
+        if (userDto.getName() == null) {
             throw new ValidationException("Имя не может быть пустым");
         }
 
-        if(userDto.getEmail() == null){
+        if (userDto.getEmail() == null) {
             throw new ValidationException("Электронная почта не может быть пустым");
         }
 
         if (repository.existsByEmail(userDto.getEmail())) {
-            User user = repository.save(UserMapper.mapToNewUser(userDto));
+            repository.save(UserMapper.mapToNewUser(userDto));
             throw new RuntimeException("Email address already exists");
         }
-
         User user = repository.save(UserMapper.mapToNewUser(userDto));
         return UserMapper.mapToUserDto(user);
     }
@@ -45,10 +45,8 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDto getUserById(long userId) {
-
         User user = repository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
-
         return UserMapper.mapToUserDto(user);
     }
 
@@ -57,7 +55,6 @@ public class UserServiceImpl implements UserService {
     public UserDto update(long userId, UserDto userDto) {
         User updatedUser = repository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
-
         if (userDto.getName() != null) {
             updatedUser.setName(userDto.getName());
         }
@@ -65,7 +62,6 @@ public class UserServiceImpl implements UserService {
         if (userDto.getEmail() != null) {
             updatedUser.setEmail(userDto.getEmail());
         }
-
         repository.updateUser(userId, updatedUser.getName(), updatedUser.getEmail());
         return UserMapper.mapToUserDto(updatedUser);
     }
@@ -78,6 +74,4 @@ public class UserServiceImpl implements UserService {
         }
         repository.deleteUserById(userId);
     }
-
-
 }

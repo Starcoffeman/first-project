@@ -7,13 +7,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.exceptions.ResourceNotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.intf.Create;
-import ru.practicum.shareit.item.ItemService;
 
-import javax.print.DocFlavor;
 import java.util.List;
 
 @RestController
@@ -22,14 +19,13 @@ import java.util.List;
 @Slf4j
 public class BookingController {
 
-    private final BookingService bookingService;
     private static final String USER_ID = "X-Sharer-User-Id";
-
+    private final BookingService bookingService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Booking saveNewBooking(@RequestHeader(USER_ID) long userId,@RequestBody @Validated(Create.class) BookingDto bookingDto) {
-        return bookingService.createBooking(userId,bookingDto);
+    public Booking saveNewBooking(@RequestHeader(USER_ID) long userId, @RequestBody @Validated(Create.class) BookingDto bookingDto) {
+        return bookingService.createBooking(userId, bookingDto);
     }
 
     @PatchMapping("/{bookingId}")
@@ -41,10 +37,8 @@ public class BookingController {
 
     @GetMapping("/{bookingId}")
     public Booking getBookingByIdAndBooker(@PathVariable long bookingId, @RequestHeader(USER_ID) long userId) {
-        return bookingService.getBookingByIdAndBookerOrOwner(bookingId,userId);
+        return bookingService.getBookingByIdAndBookerOrOwner(bookingId, userId);
     }
-
-
 
     @GetMapping("/")
     public List<Booking> getBookingsByBooker(@RequestHeader(USER_ID) long userId) {
@@ -54,7 +48,6 @@ public class BookingController {
     @GetMapping("/owner")
     public List<Booking> getBookingsByOwner_Id(@RequestHeader(USER_ID) long userId,
                                                @RequestParam(value = "state", required = false) String state) {
-
         if (!bookingService.existsBookingByBooker_IdOrItem_Owner(userId, userId)) {
             throw new ResourceNotFoundException("No bookings found for user with ID: " + userId);
         }
@@ -83,10 +76,9 @@ public class BookingController {
 
     @GetMapping
     public List<Booking> getBookingsByBooker_Id(@RequestHeader(USER_ID) long userId,
-                                            @RequestParam(value = "state", required = false) String state) {
-
-        if (state!=null){
-            switch (state){
+                                                @RequestParam(value = "state", required = false) String state) {
+        if (state != null) {
+            switch (state) {
                 case "ALL":
                     return bookingService.findBookingsByBooker_Id(userId);
                 case "FUTURE":
@@ -103,11 +95,9 @@ public class BookingController {
                     throw new ValidationException("Unknown state: " + state);
             }
         } else {
-        return bookingService.findBookingsByBooker_IdOrItem_Owner(userId,userId);
+            return bookingService.findBookingsByBooker_IdOrItem_Owner(userId, userId);
         }
     }
-
-
 }
 
 
