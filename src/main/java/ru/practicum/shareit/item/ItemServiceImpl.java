@@ -79,30 +79,39 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     public ItemDto getItemById(long userId, long itemId) {
         Item item = itemRepository.findById(itemId).orElseThrow(() -> new ResourceNotFoundException("Item not found with ID: " + itemId));
-        if(item.getOwner()!=userId){
-            ItemDto itemDto = ItemMapper.mapToItemDto(item);
+        ItemDto itemDto = ItemMapper.mapToItemDto(item);
+
+        if (item.getOwner() != userId) {
             itemDto.setNextBooking(null);
             itemDto.setLastBooking(null);
-            return itemDto;
+
+            List<CommentDto> commentDtos = new ArrayList<>();
+            for (Comment comment : item.getComments()) {
+                CommentDto commentDto = CommentMapper.mapToCommentDto(comment);
+                // Получаем имя автора комментария
+                String authorName = commentService.getNameAuthorByCommentId(comment.getId());
+                commentDto.setAuthorName(authorName);
+                commentDtos.add(commentDto);
+            }
+            itemDto.setComments(commentDtos);
         } else {
-            ItemDto itemDto = ItemMapper.mapToItemDto(item);
             itemDto.setNextBooking(findNextBookingByItemId(itemId));
             itemDto.setLastBooking(findLastBookingByItemId(itemId));
 
-
-//            List<CommentDto> commentDtos = new ArrayList<>();
-//            for (Comment comment : item.getComments()) {
-//                CommentDto commentDto = CommentMapper.mapToCommentDto(comment);
-//                // Получаем имя автора комментария
-//                String authorName = userService.getUserNameById(comment.getAuthorId());
-//                commentDto.setAuthorName(authorName);
-//                commentDtos.add(commentDto);
-//            }
-            itemDto.setComments(CommentMapper.mapToCommentDto(item.getComments()));
-            return itemDto;
+            List<CommentDto> commentDtos = new ArrayList<>();
+            for (Comment comment : item.getComments()) {
+                CommentDto commentDto = CommentMapper.mapToCommentDto(comment);
+                // Получаем имя автора комментария
+                String authorName = commentService.getNameAuthorByCommentId(comment.getId());
+                commentDto.setAuthorName(authorName);
+                commentDtos.add(commentDto);
+            }
+            itemDto.setComments(commentDtos);
         }
 
+        return itemDto;
     }
+
 
     @Override
     @Transactional
