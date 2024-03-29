@@ -75,13 +75,19 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional
-    public ItemDto getItemById(long itemId) {
+    public ItemDto getItemById(long userId, long itemId) {
         Item item = itemRepository.findById(itemId).orElseThrow(() -> new ResourceNotFoundException("Item not found with ID: " + itemId));
-        ItemDto itemDto = ItemMapper.mapToItemDto(item);
-
-        itemDto.setNextBooking(findNextBookingByItemId(itemId));
-        itemDto.setLastBooking(findLastBookingByItemId(itemId));
-        return itemDto;
+        if(item.getOwner()!=userId){
+            ItemDto itemDto = ItemMapper.mapToItemDto(item);
+            itemDto.setNextBooking(null);
+            itemDto.setLastBooking(null);
+            return itemDto;
+        } else {
+            ItemDto itemDto = ItemMapper.mapToItemDto(item);
+            itemDto.setNextBooking(findNextBookingByItemId(itemId));
+            itemDto.setLastBooking(findLastBookingByItemId(itemId));
+            return itemDto;
+        }
     }
 
     @Override

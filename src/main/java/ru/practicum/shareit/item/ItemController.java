@@ -23,9 +23,10 @@ public class ItemController {
 
     @GetMapping("/{itemId}")
     @ResponseStatus(HttpStatus.OK)
-    public ItemDto getItemById(@PathVariable("itemId") long itemId) {
+    public ItemDto getItemById(@RequestHeader(USER_ID) long userId,
+                               @PathVariable("itemId") long itemId) {
         log.info("Вывод предмета под id: {}", itemId);
-        return itemService.getItemById(itemId);
+        return itemService.getItemById(userId,itemId);
     }
 
     @PostMapping
