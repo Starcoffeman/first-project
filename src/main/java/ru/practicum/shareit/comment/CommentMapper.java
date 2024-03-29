@@ -4,6 +4,11 @@ import org.mapstruct.Mapper;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.comment.model.Comment;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.model.Item;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Mapper
 @Component
@@ -16,6 +21,17 @@ public class CommentMapper {
         return CommentDto.builder()
                 .id(comment.getId())
                 .text(comment.getText())
+                .created(comment.getCreatedAt())
                 .build();
+    }
+
+    public static List<CommentDto> mapToCommentDto(Iterable<Comment> comments) {
+        List<CommentDto> result = new ArrayList<>();
+
+        for (Comment comment : comments) {
+            result.add(mapToCommentDto(comment));
+        }
+
+        return result;
     }
 }
