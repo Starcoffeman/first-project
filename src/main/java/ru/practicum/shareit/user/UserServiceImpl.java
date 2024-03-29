@@ -44,6 +44,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
+    public String getUserNameById(Long userId) {
+        User user = repository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
+        return user.getName();
+    }
+
+    @Override
+    @Transactional
     public UserDto getUserById(long userId) {
         User user = repository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));

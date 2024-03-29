@@ -11,6 +11,7 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.comment.CommentMapper;
 import ru.practicum.shareit.comment.CommentRepository;
+import ru.practicum.shareit.comment.CommentService;
 import ru.practicum.shareit.comment.dto.CommentDto;
 import ru.practicum.shareit.comment.model.Comment;
 import ru.practicum.shareit.exceptions.ResourceNotFoundException;
@@ -33,6 +34,7 @@ public class ItemServiceImpl implements ItemService {
     private final UserService userService;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final CommentService commentService;
 
     @Override
     @Transactional
@@ -86,8 +88,20 @@ public class ItemServiceImpl implements ItemService {
             ItemDto itemDto = ItemMapper.mapToItemDto(item);
             itemDto.setNextBooking(findNextBookingByItemId(itemId));
             itemDto.setLastBooking(findLastBookingByItemId(itemId));
+
+
+//            List<CommentDto> commentDtos = new ArrayList<>();
+//            for (Comment comment : item.getComments()) {
+//                CommentDto commentDto = CommentMapper.mapToCommentDto(comment);
+//                // Получаем имя автора комментария
+//                String authorName = userService.getUserNameById(comment.getAuthorId());
+//                commentDto.setAuthorName(authorName);
+//                commentDtos.add(commentDto);
+//            }
+            itemDto.setComments(CommentMapper.mapToCommentDto(item.getComments()));
             return itemDto;
         }
+
     }
 
     @Override
@@ -117,15 +131,13 @@ public class ItemServiceImpl implements ItemService {
             throw new ResourceNotFoundException("Отсутствует user под id:");
         }
 
-
-
         Item item = ItemMapper.mapToNewItem(itemDto);
         item.setOwner(userId);
         item = itemRepository.save(item);
         ItemDto a = ItemMapper.mapToItemDto(item);
         a.setNextBooking(findNextBookingByItemId(item.getId()));
         a.setLastBooking(findLastBookingByItemId(item.getId()));
-        a.setComments(commentRepository.findAllByItemId(item.getId()));
+        a.setComments(CommentMapper.mapToCommentDto(commentRepository.findAllByItemId(item.getId())));
         return a;
     }
 
@@ -184,33 +196,4 @@ public class ItemServiceImpl implements ItemService {
         BookingDto nextBookingsDTO =BookingMapper.mapToBookingDto(nextBookings);
         return nextBookingsDTO;
     }
-
-//
-//    private BookingDto findLastBookingByItemId(long itemId) {
-//        // Находим последний букинг, у которого статус APPROVED и начало в прошлом
-//        List<Booking> lastBookings = bookingRepository.findBookingsByItemId(itemId);
-//        Booking lastBooking = null;
-//        LocalDateTime now = LocalDateTime.now();
-//        for (Booking booking : lastBookings) {
-//            if (booking.getStatus() == BookingStatus.APPROVED && booking.getStart().isBefore(now)) {
-//                lastBooking = booking;
-//                break;
-//            }
-//        }
-//        return BookingMapper.mapToBookingDto(lastBooking);
-//    }
-//
-//    private BookingDto findNextBookingByItemId(long itemId) {
-//        // Находим следующий букинг, у которого статус APPROVED и начало в будущем
-//        List<Booking> nextBookings = bookingRepository.findBookingsByItemId(itemId);
-//        Booking nextBooking = null;
-//        LocalDateTime now = LocalDateTime.now();
-//        for (Booking booking : nextBookings) {
-//            if (booking.getStatus() == BookingStatus.APPROVED && booking.getStart().isAfter(now)) {
-//                nextBooking = booking;
-//                break;
-//            }
-//        }
-//        return BookingMapper.mapToBookingDto(nextBooking);
-//    }
 }
